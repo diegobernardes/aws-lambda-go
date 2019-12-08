@@ -1,2 +1,6 @@
 # Go Dep
 vendor
+
+# Temporary files.
+/cmd/aws-lambda-go/aws-lambda-go
+/cmd/aws-lambda-go/main

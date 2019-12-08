@@ -6,8 +6,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"testing"
 
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda/handlertrace"
 	"github.com/stretchr/testify/assert"
 )
@@ -269,4 +271,31 @@ func TestHandlerTrace(t *testing.T) {
 	if responseHistory != "XY" {
 		t.Error("response callbacks not called as expected", responseHistory)
 	}
+}
+
+func BenchmarkEventSQS(b *testing.B) {
+	fn := func(ctx context.Context, e events.SQSEvent) error {
+		return nil
+	}
+	handlerNew := NewHandlerSQSEvent(fn)
+	handlerOld := NewHandler(fn)
+
+	inputJSON, err := ioutil.ReadFile("../events/testdata/sqs-event.json")
+	if err != nil {
+		b.FailNow()
+	}
+
+	b.Run("New", func(b *testing.B) {
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			handlerNew.Invoke(context.Background(), inputJSON)
+		}
+	})
+
+	b.Run("Old", func(b *testing.B) {
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			handlerOld.Invoke(context.Background(), inputJSON)
+		}
+	})
 }

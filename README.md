@@ -1,4 +1,4 @@
-# AWS Lambda for Go 
+# AWS Lambda for Go
 [![GoDoc][1]][2]
 [![Build Status][5]][6]
 [![GoCard][3]][4]
@@ -37,6 +37,24 @@ func main() {
 }
 ```
 
+``` Go
+// main.go
+package main
+
+import (
+	"github.com/aws/aws-lambda-go/lambda"
+)
+
+func hello(ctx context.Context, payload []byte) (string, error) {
+	return "Hello ƛ!", nil
+}
+
+func main() {
+	// Make the handler available for Remote Procedure Call by AWS Lambda
+	lambda.StartHandler(hello)
+}
+```
+
 # Building your function
 
 Preparing a binary to deploy to AWS Lambda requires that it is compiled for Linux and placed into a .zip file.
@@ -58,7 +76,7 @@ set GO111MODULE=on
 go.exe get -u github.com/aws/aws-lambda-go/cmd/build-lambda-zip
 ```
 
-Use the tool from your `GOPATH`. If you have a default installation of Go, the tool will be in `%USERPROFILE%\Go\bin`. 
+Use the tool from your `GOPATH`. If you have a default installation of Go, the tool will be in `%USERPROFILE%\Go\bin`.
 
 in cmd.exe:
 ``` bat
@@ -84,4 +102,3 @@ To deploy your function, refer to the official documentation for [deploying usin
 # Event Integrations
 
 The [event models](https://github.com/aws/aws-lambda-go/tree/master/events) can be used to model AWS event sources. The official documentation has [detailed walkthroughs](https://docs.aws.amazon.com/lambda/latest/dg/use-cases.html).
-

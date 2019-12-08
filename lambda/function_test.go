@@ -140,3 +140,26 @@ func TestContextPlumbing(t *testing.T) {
 	`
 	assert.JSONEq(t, expected, string(response.Payload))
 }
+
+func BenchmarkFunction(b *testing.B) {
+	srv := &Function{handler: testWrapperHandler(
+		func(ctx context.Context, input []byte) (interface{}, error) {
+			if deadline, ok := ctx.Deadline(); ok {
+				return deadline.UnixNano(), nil
+			}
+			return nil, errors.New("!?!?!?!?!")
+		},
+	)}
+	deadline := time.Now()
+	var response messages.InvokeResponse
+	req := messages.InvokeRequest{
+		Deadline: messages.InvokeRequest_Timestamp{
+			Seconds: deadline.Unix(),
+			Nanos:   int64(deadline.Nanosecond()),
+		}}
+
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		srv.Invoke(&req, &response)
+	}
+}
